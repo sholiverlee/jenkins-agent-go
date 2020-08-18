@@ -1,3 +1,10 @@
-FROM golang:alpine
-RUN apk add --no-cache make py-pip python3-dev libffi-dev openssl-dev gcc libc-dev && pip3 install docker-compose
+FROM jenkins/inbound-agent:alpine as jnlp
 
+FROM golang:alpine
+
+RUN apk -U add openjdk8-jre git docker docker-compose
+
+COPY --from=jnlp /usr/local/bin/jenkins-agent /usr/local/bin/jenkins-agent
+COPY --from=jnlp /usr/share/jenkins/agent.jar /usr/share/jenkins/agent.jar
+
+ENTRYPOINT ["/usr/local/bin/jenkins-agent"]
